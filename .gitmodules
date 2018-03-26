@@ -1,0 +1,3 @@
+[submodule "vulcro"]
+	path = vulcro
+	url = https://github.com/revillo/vulcro.git
