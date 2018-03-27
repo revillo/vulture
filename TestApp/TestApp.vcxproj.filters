@@ -16,6 +16,9 @@
     <Filter Include="vulcro">
       <UniqueIdentifier>{e139ce81-a150-4ace-bdbd-394e19b34a57}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vulture">
+      <UniqueIdentifier>{9fc0a741-a0cc-4622-beea-bd1f7191eb24}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,6 +62,15 @@
     </ClCompile>
     <ClCompile Include="..\vulcro\Vulcro\src\VulkanImage.cpp">
       <Filter>vulcro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\VultureStage.cpp">
+      <Filter>vulture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\VultureApp.cpp">
+      <Filter>vulture</Filter>
+    </ClCompile>
+    <ClCompile Include="TestApp.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +118,21 @@
     </ClInclude>
     <ClInclude Include="..\vulcro\Vulcro\src\VulkanImage.h">
       <Filter>vulcro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\VultureStage.h">
+      <Filter>vulture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\VultureApp.h">
+      <Filter>vulture</Filter>
+    </ClInclude>
+    <ClInclude Include="TestApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\util\VultureTime.h">
+      <Filter>vulture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\util\VultureThread.h">
+      <Filter>vulture</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
