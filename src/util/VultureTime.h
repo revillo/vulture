@@ -28,4 +28,7 @@ public:
 		return time;
 	}
 
+	static void pauseThreadMS(uint32 milliseconds) {
+		std::this_thread::sleep_for(Ms(milliseconds));
+	}
 };

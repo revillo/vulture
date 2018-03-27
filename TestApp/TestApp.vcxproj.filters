@@ -63,14 +63,14 @@
     <ClCompile Include="..\vulcro\Vulcro\src\VulkanImage.cpp">
       <Filter>vulcro</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\VultureStage.cpp">
-      <Filter>vulture</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\VultureApp.cpp">
       <Filter>vulture</Filter>
     </ClCompile>
     <ClCompile Include="TestApp.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\VultureService.cpp">
+      <Filter>vulture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -119,9 +119,6 @@
     <ClInclude Include="..\vulcro\Vulcro\src\VulkanImage.h">
       <Filter>vulcro</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\VultureStage.h">
-      <Filter>vulture</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\VultureApp.h">
       <Filter>vulture</Filter>
     </ClInclude>
@@ -132,6 +129,9 @@
       <Filter>vulture</Filter>
     </ClInclude>
     <ClInclude Include="..\src\util\VultureThread.h">
+      <Filter>vulture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\VultureService.h">
       <Filter>vulture</Filter>
     </ClInclude>
   </ItemGroup>

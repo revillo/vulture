@@ -168,7 +168,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\VultureApp.cpp" />
-    <ClCompile Include="..\src\VultureStage.cpp" />
+    <ClCompile Include="..\src\VultureService.cpp" />
     <ClCompile Include="..\vulcro\Vulcro\src\VulkanBuffer.cpp" />
     <ClCompile Include="..\vulcro\Vulcro\src\VulkanContext.cpp" />
     <ClCompile Include="..\vulcro\Vulcro\src\VulkanImage.cpp" />
@@ -189,7 +189,7 @@
     <ClInclude Include="..\src\util\VultureThread.h" />
     <ClInclude Include="..\src\util\VultureTime.h" />
     <ClInclude Include="..\src\VultureApp.h" />
-    <ClInclude Include="..\src\VultureStage.h" />
+    <ClInclude Include="..\src\VultureService.h" />
     <ClInclude Include="..\vulcro\Vulcro\src\General.h" />
     <ClInclude Include="..\vulcro\Vulcro\src\Vulcro.h" />
     <ClInclude Include="..\vulcro\Vulcro\src\VulkanBuffer.h" />

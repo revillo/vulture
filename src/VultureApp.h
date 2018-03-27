@@ -3,20 +3,39 @@
 #include "Vulcro.h"
 #include "util/VultureTime.h"
 #include "util/VultureThread.h"
+#include "VultureService.h"
 
 class VultureApp {
+
+	struct ServiceHandler {
+
+		ServiceHandler(VultureServiceRef _service, uint32 _interval, Thread::Fut &_fut) :
+			service(_service)
+			,interval(_interval)
+			,fut(std::move(_fut))
+		{}
+
+		VultureServiceRef service;
+		uint32 interval;
+		Thread::Fut fut;
+	};
 
 public:
 
 	virtual void run();
+	void runService(VultureServiceRef service, uint32 interval);
+
 	
-	
+protected:
 
 	VultureApp();
 
 	~VultureApp();
 
+	
+
 private:
+
 
 	Time::Seconds _appTime;
 
@@ -24,5 +43,5 @@ private:
 
 	VulkanWindow _window;
 
-	vector<Thread::Fut> _runFuts;
+	vector<ServiceHandler> _services;
 };
