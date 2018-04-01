@@ -1,0 +1,25 @@
+#version 430
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
+
+layout(local_size_x = 16, local_size_y = 1, local_size_z = 1) in;
+
+layout(std430, set = 0, binding = 0) buffer Mesh
+{
+   vec4 points[3];
+} mesh;
+
+
+void main() {
+
+  uint sid = gl_GlobalInvocationID.x;
+  if (sid > 0) return;
+
+  mesh.points[sid] = vec4(0.0, -1.0, 0.0, 1.0);
+  mesh.points[sid + 1] = vec4(-1.0, 0.4, 0.0, 1.0);
+  mesh.points[sid + 2] = vec4(1.0, 0.4, 0.0, 1.0);
+  
+  
+
+  return;
+}

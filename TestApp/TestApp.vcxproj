@@ -167,6 +167,10 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\graphics\VultureGPUService.cpp" />
+    <ClCompile Include="..\src\graphics\VultureMeshCompute.cpp" />
+    <ClCompile Include="..\src\graphics\VultureMeshRender.cpp" />
+    <ClCompile Include="..\src\graphics\VultureSplineCompute.cpp" />
     <ClCompile Include="..\src\VultureApp.cpp" />
     <ClCompile Include="..\src\VultureService.cpp" />
     <ClCompile Include="..\vulcro\Vulcro\src\VulkanBuffer.cpp" />
@@ -186,6 +190,12 @@
     <ClCompile Include="TestApp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\graphics\VultureGPUService.h" />
+    <ClInclude Include="..\src\graphics\VultureMeshCompute.h" />
+    <ClInclude Include="..\src\graphics\VultureMeshGroup.h" />
+    <ClInclude Include="..\src\graphics\VultureMeshRender.h" />
+    <ClInclude Include="..\src\graphics\VultureSplineCompute.h" />
+    <ClInclude Include="..\src\graphics\VultureSplineRender.h" />
     <ClInclude Include="..\src\util\VultureThread.h" />
     <ClInclude Include="..\src\util\VultureTime.h" />
     <ClInclude Include="..\src\VultureApp.h" />

@@ -72,6 +72,18 @@
     <ClCompile Include="..\src\VultureService.cpp">
       <Filter>vulture</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\graphics\VultureMeshCompute.cpp">
+      <Filter>vulture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\VultureMeshRender.cpp">
+      <Filter>vulture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\VultureGPUService.cpp">
+      <Filter>vulture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\VultureSplineCompute.cpp">
+      <Filter>vulture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\vulcro\Vulcro\src\VulkanPipeline.h">
@@ -122,9 +134,6 @@
     <ClInclude Include="..\src\VultureApp.h">
       <Filter>vulture</Filter>
     </ClInclude>
-    <ClInclude Include="TestApp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\util\VultureTime.h">
       <Filter>vulture</Filter>
     </ClInclude>
@@ -132,6 +141,27 @@
       <Filter>vulture</Filter>
     </ClInclude>
     <ClInclude Include="..\src\VultureService.h">
+      <Filter>vulture</Filter>
+    </ClInclude>
+    <ClInclude Include="TestApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\VultureMeshCompute.h">
+      <Filter>vulture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\VultureMeshGroup.h">
+      <Filter>vulture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\VultureGPUService.h">
+      <Filter>vulture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\VultureMeshRender.h">
+      <Filter>vulture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\VultureSplineCompute.h">
+      <Filter>vulture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\VultureSplineRender.h">
       <Filter>vulture</Filter>
     </ClInclude>
   </ItemGroup>

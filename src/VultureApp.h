@@ -28,14 +28,11 @@ public:
 	
 protected:
 
-	VultureApp();
+	VultureApp(ivec2 windowSize);
 
 	~VultureApp();
 
-	
-
-private:
-
+	ivec2 _windowSize;
 
 	Time::Seconds _appTime;
 

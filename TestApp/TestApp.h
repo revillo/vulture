@@ -1,22 +1,6 @@
 #pragma once
 #include "VultureApp.h"
-
-
-class TestService :
-	public VultureService
-{
-public:
-	bool update() {
-		std::cout << counter++ << std::endl;
-		return counter < 10;
-	}
-	TestService() {}
-	~TestService() {}
-
-private:
-
-	int counter = 0;
-};
+#include "graphics/VultureGPUService.h"
 
 class TestApp :
 	public VultureApp
@@ -24,5 +8,13 @@ class TestApp :
 public:
 	TestApp();
 	~TestApp();
+};
+
+class TestSplineApp :
+	public VultureApp
+{
+public:
+	TestSplineApp();
+	~TestSplineApp();
 };
 
