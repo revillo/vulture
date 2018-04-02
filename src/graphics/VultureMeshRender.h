@@ -12,7 +12,8 @@ public:
 
 	VultureMeshRender(VulkanPipelineRef pipeline, VultureMeshComputeRef meshCompute);
 	~VultureMeshRender() {}
-	virtual void recordDraw(vk::CommandBuffer * cmd);
+
+	virtual void recordDraw(vk::CommandBuffer * cmd, VulkanUniformSetRef sceneGlobalSet);
 
 protected:
 

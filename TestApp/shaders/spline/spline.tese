@@ -4,6 +4,13 @@ layout(triangles, equal_spacing, cw) in;
 
 layout(location = 0) in vec3 tcPosition[];
 
+layout (set = 0, binding = 0) uniform SceneGlobals{
+	mat4 perspective;
+	mat4 view;
+	vec4 viewPos;
+	vec4 sunDirWorld;
+	vec4 time;
+} uScene;
 
 void main()
 {
@@ -14,7 +21,6 @@ void main()
     vec3 wPos = normalize(p0 + p1 + p2);
     wPos = p0 + p1 + p2;
     
-    
-    
-    gl_Position = vec4(wPos, 1);
+  
+    gl_Position = uScene.perspective * uScene.view * vec4(wPos, 1);
 }

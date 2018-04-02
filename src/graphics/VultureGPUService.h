@@ -3,35 +3,52 @@
 #include "VultureService.h"
 #include "graphics/VultureMeshRender.h"
 #include "Vulcro.h"
+#include <mutex>
 
 class VultureGPUService : public VultureService
 {
-	public:
+public:
 
-		static shared_ptr<VultureGPUService> make(VulkanWindow * window) {
-			return make_shared<VultureGPUService>(window);
-		}
+	struct SceneGlobals {
+		mat4 perspective;
+		mat4 view;
+		vec4 viewPos;
+		vec4 sunDirWorld;
+		vec4 time;
+	};
 
-		VultureGPUService(VulkanWindow * window);
-		
-		virtual void setupScene(vector<VulkanImageRef> targets);
-		virtual void setupComposite(const char * vertPath, const char * fragPath);
-		virtual void setupCompute();
 
-		~VultureGPUService();
+	static shared_ptr<VultureGPUService> make(VulkanWindow * window) {
+		return make_shared<VultureGPUService>(window);
+	}
 
-		virtual bool update();
-		virtual void addMeshRender(VultureMeshRenderRef render);
-		virtual void addMeshCompute(VultureMeshComputeRef meshCompute);
+	VultureGPUService(VulkanWindow * window);
+	~VultureGPUService();
 
-		VulkanRendererRef getSceneRenderer() {
-			return _sceneRenderer;
-		}
+	virtual void setupScene(vector<VulkanImageRef> targets);
+	virtual void setupComposite(const char * vertPath, const char * fragPath);
+	virtual void setupCompute();
 
-		virtual void recordCompositeTasks();
-		virtual void recordSceneTasks();
-		virtual void recordComputeTasks();
+	
+	virtual void recordCompositeTasks();
+	virtual void recordSceneTasks();
+	virtual void recordComputeTasks();
 
+	virtual void setSceneGlobals(SceneGlobals globals);
+
+	virtual bool update();
+	virtual void addMeshRender(VultureMeshRenderRef render);
+	virtual void addMeshCompute(VultureMeshComputeRef meshCompute);
+	
+	VulkanUniformSetLayoutRef getSceneGlobalsLayout() {
+		return _sceneGlobalLayout;
+	}
+	
+	VulkanRendererRef getSceneRenderer() {
+		return _sceneRenderer;
+	}
+
+	
 protected:
 
 	virtual void resize();
@@ -42,11 +59,18 @@ protected:
 		vec2 uv;
 	};
 	
+	mutex setGlobalsLock;
+
 	shared_ptr<vbo<VertexUV>> _blitVBO;
 	shared_ptr<ibo> _blitIBO;
 
+	shared_ptr<ubo<SceneGlobals>> _uScene;
+
 	VulkanUniformSetRef _blitUniformSet;
 	VulkanUniformSetLayoutRef _blitUniformLayout;
+
+	VulkanUniformSetRef _sceneGlobalSet;
+	VulkanUniformSetLayoutRef _sceneGlobalLayout;
 
 	VulkanContextRef _ctx;
 

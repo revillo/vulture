@@ -196,6 +196,7 @@
     <ClInclude Include="..\src\graphics\VultureMeshRender.h" />
     <ClInclude Include="..\src\graphics\VultureSplineCompute.h" />
     <ClInclude Include="..\src\graphics\VultureSplineRender.h" />
+    <ClInclude Include="..\src\models\VultureSkeleton.h" />
     <ClInclude Include="..\src\util\VultureThread.h" />
     <ClInclude Include="..\src\util\VultureTime.h" />
     <ClInclude Include="..\src\VultureApp.h" />

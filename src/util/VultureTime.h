@@ -17,15 +17,14 @@ public:
 	using TimePoint = std::chrono::time_point<Clock, Duration>;
 
 	static Seconds nowSec() {
-		auto t = Clock::now();
-		long long time = t.time_since_epoch().count();
-		return time / 1000.0;
+		
+		return nowMS() / 1000.0;
+
 	}
 
 	static Milliseconds nowMS() {
-		auto t = Clock::now();
-		long long time = t.time_since_epoch().count();
-		return time;
+		auto t = Clock::now().time_since_epoch();
+		return std::chrono::duration_cast<Ms>(t).count();
 	}
 
 	static void pauseThreadMS(uint32 milliseconds) {

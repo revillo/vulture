@@ -25,6 +25,7 @@ public:
 	virtual void run();
 	void runService(VultureServiceRef service, uint32 interval);
 
+	virtual void killServices();
 	
 protected:
 

@@ -7,11 +7,13 @@ VultureMeshRender::VultureMeshRender(VulkanPipelineRef pipeline, VultureMeshComp
 
 }
 
-void VultureMeshRender::recordDraw(vk::CommandBuffer * cmd)
+
+void VultureMeshRender::recordDraw(vk::CommandBuffer * cmd, VulkanUniformSetRef sceneGlobalSet)
 {
 	_pipeline->bind(cmd);
 	
 	_pipeline->bindUniformSets(cmd, {
+		sceneGlobalSet,
 		_meshCompute->getUniformSet()
 	});
 

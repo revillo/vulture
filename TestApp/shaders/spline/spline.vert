@@ -2,7 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-layout(std430, set = 0, binding = 0) buffer Mesh
+layout(std430, set = 1, binding = 0) buffer Mesh
 {
    vec4 points[];
 } mesh;
@@ -23,6 +23,10 @@ layout(location = 0) out vec3 vPosition;
 
 void main() {
 
-  vPosition = mesh.points[indices[gl_VertexIndex]].xyz;
+  uint splineIndex = gl_VertexIndex / 24;
+  uint splineStart = splineIndex * 8;
+  
+  vPosition = mesh.points[indices[gl_VertexIndex % 24] + splineStart].xyz;
+
   
 }

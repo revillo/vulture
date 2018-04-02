@@ -164,5 +164,8 @@
     <ClInclude Include="..\src\graphics\VultureSplineRender.h">
       <Filter>vulture</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\models\VultureSkeleton.h">
+      <Filter>vulture</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

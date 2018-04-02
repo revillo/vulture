@@ -16,5 +16,13 @@ class TestSplineApp :
 public:
 	TestSplineApp();
 	~TestSplineApp();
+	void run();
+	void update();
+
+protected:
+
+	double startTime;
+	VultureGPUService::SceneGlobals _sceneGlobals;
+	shared_ptr<VultureGPUService> gpuService;
 };
 

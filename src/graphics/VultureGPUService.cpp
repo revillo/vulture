@@ -15,17 +15,23 @@ VultureGPUService::VultureGPUService(VulkanWindow * window)
 
 	_sceneSemaphore = _ctx->getDevice().createSemaphore(vk::SemaphoreCreateInfo());
 
-	
 }
 
 void VultureGPUService::setupScene(vector<VulkanImageRef> targets) {
 	_sceneTargets = targets;
 
 	_sceneTasks = _ctx->makeTaskGroup(1, SCENE_TASK_POOL);
+	_uScene = _ctx->makeUBO<SceneGlobals>(1);
 
 	_sceneRenderer = _ctx->makeRenderer();
 	_sceneRenderer->targetImages(_sceneTargets, true);
 
+	_sceneGlobalLayout = _ctx->makeUniformSetLayout({
+		_uScene->getLayout()
+	});
+
+	_sceneGlobalSet = _ctx->makeUniformSet(_sceneGlobalLayout);
+	_sceneGlobalSet->bindBuffer(0, _uScene->getDBI());
 }
 
 void VultureGPUService::setupCompute()
@@ -64,7 +70,6 @@ void VultureGPUService::setupComposite(const char * vertPath, const char * fragP
 	}
 
 	_blitUniformLayout = _ctx->makeUniformSetLayout(bindings);
-
 
 	_blitUniformSet = _ctx->makeUniformSet(_blitUniformLayout);
 
@@ -137,7 +142,7 @@ void VultureGPUService::recordSceneTasks()
 			_sceneRenderer->record(cmd, [=]() {
 
 				for (auto & render : _meshRenders) {
-					render->recordDraw(cmd);
+					render->recordDraw(cmd, _sceneGlobalSet);
 				}
 
 			});
@@ -156,42 +161,58 @@ void VultureGPUService::recordComputeTasks()
 	});
 }
 
+void VultureGPUService::setSceneGlobals(SceneGlobals globals)
+{
+	setGlobalsLock.lock();
+	_uScene->at(0) = globals;
+	_uScene->sync();
+	setGlobalsLock.unlock();
+}
+
 bool VultureGPUService::update()
 {
+
+	if (!_stayAlive) {
+		return false;
+	}
+
 	
-
-		//Wait for next available frame
-		if (!_swapchain->nextFrame()) {
-			resize();
-			return true;
-		}
-
-
-		auto tStart = Time::nowSec();
-		
-		_computeTasks->at(0)->execute(false, {}, { _computeSemaphore });
-
-		_sceneTasks->at(0)->execute(false, { _computeSemaphore }, { _sceneSemaphore });
-
-		
-
-		//Submit command buffer
-		_compositeTasks->at(_swapchain->getRenderingIndex())->execute(
-			true,
-			{ 
-				_swapchain->getSemaphore(), 
-				_sceneSemaphore
-			}
-		);
-
-		
-		//Present current frame to screen
-		if (!_swapchain->present()) {
-			resize();
-			return true;
-		}
-
+	//Wait for next available frame
+	if (!_swapchain->nextFrame()) {
+		resize();
 		return true;
+	}
+
+
+	auto tStart = Time::nowSec();
+
+	setGlobalsLock.lock();
+		
+	_computeTasks->at(0)->execute(false, {}, { _computeSemaphore });
+
+	_sceneTasks->at(0)->execute(false, { _computeSemaphore }, { _sceneSemaphore });
+
+		
+
+	//Submit command buffer
+	_compositeTasks->at(_swapchain->getRenderingIndex())->execute(
+		true,
+		{ 
+			_swapchain->getSemaphore(), 
+			_sceneSemaphore
+		}
+	);
+
+	setGlobalsLock.unlock();
+
+		
+	//Present current frame to screen
+	if (!_swapchain->present()) {
+		resize();
+		return true;
+	}
+
+	return true;
 }
 
 void VultureGPUService::addMeshRender(VultureMeshRenderRef render)

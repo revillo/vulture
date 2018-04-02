@@ -2,21 +2,30 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
+#define MAX_SPLINES 2
+
 layout(local_size_x = 4, local_size_y = 2, local_size_z = 1) in;
 
 struct Spline {
-  vec4 p1;
-  vec4 p2;
-  vec4 ray1;
-  vec4 ray2;
+  vec4 points[2];
+  vec4 normals[2];
+  vec4 tangents[2];
 };
 
-layout(std430, set = 0, binding = 0) buffer Skeleton
+struct Skeleton {
+  
+  mat4 modelMatrix;
+  uvec4 padding;
+  Spline splines[MAX_SPLINES];
+
+};
+
+layout(std430, set = 0, binding = 0) buffer SkeletonBuffer
 {
   
-  Spline splines[];
+  Skeleton skeletons[];
   
-} skeleton;
+} skeletonBuffer;
 
 layout(std430, set = 1, binding = 0) buffer Mesh
 {
@@ -65,7 +74,7 @@ void main() {
 
   const uint splineIndex = gl_WorkGroupID.x;
 
-  Spline spline = skeleton.splines[splineIndex];
+  Spline spline = skeletonBuffer.skeletons[0].splines[splineIndex];
   
   uvec2 lid = gl_LocalInvocationID.xy;
   
@@ -75,14 +84,18 @@ void main() {
   float tx = float(lid.x) / pointsPerRing;
   
   
+  //vec3 center = mix(spline.p1.xyz, spline.p2.xyz, ty);
+  //vec3 ray = Slerp(spline.nrm1.xyz, spline.nrm2.xyz, ty);
+  //ray = rotationAxisAngle(ray, normalize(spline.p2.xyz -    spline.p1.xyz), tx * PI2);
+ 
   
-  vec3 center = mix(spline.p1.xyz, spline.p2.xyz, ty);
-
-  vec3 ray = Slerp(spline.ray1.xyz, spline.ray2.xyz, ty);
+  vec3 center = spline.points[lid.y].xyz;
+  vec3 normal = spline.normals[lid.y].xyz;
+  vec3 tangent = spline.tangents[lid.y].xyz;
+   
+  normal = rotationAxisAngle(normal, tangent, tx * PI2);
   
-  ray = rotationAxisAngle(ray, normalize(spline.p2.xyz - spline.p1.xyz), tx * PI2);
-  
-  mesh.points[pid] = vec4(center + ray, 1.0);
+  mesh.points[pid] = vec4(center + normal, 1.0);
 
   
   return;

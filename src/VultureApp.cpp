@@ -33,3 +33,13 @@ void VultureApp::runService(VultureServiceRef service, uint32 interval)
 	}));
 	
 }
+
+void VultureApp::killServices()
+{
+	for (auto &handler : _services) {
+		handler.service->kill();
+		handler.fut.get();
+	}
+
+	_services.clear();
+}
