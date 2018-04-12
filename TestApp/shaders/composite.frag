@@ -15,7 +15,7 @@ void main() {
     OutColor = texture(colorSampler, uv);
     
     if (OutColor.a < 0.1) {
-      OutColor = vec4(0.2, 0.2, 0.2, 1.0);
+      OutColor = vec4(0.5, 0.5, 0.7, 1.0);
     }
     OutColor.a = 1.0;
 

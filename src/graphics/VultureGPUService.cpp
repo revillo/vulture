@@ -4,6 +4,7 @@
 #define SCENE_TASK_POOL 0
 #define COMPOSITE_POOL 1
 #define COMPUTE_TASK_POOL 2
+#define COMPUTE_ONCE_POOL 3
 
 VultureGPUService::VultureGPUService(VulkanWindow * window)
 	:
@@ -37,6 +38,15 @@ void VultureGPUService::setupScene(vector<VulkanImageRef> targets) {
 void VultureGPUService::setupCompute()
 {
 	_computeTasks = _ctx->makeTaskGroup(1, COMPUTE_TASK_POOL);
+}
+
+void VultureGPUService::computeOnce(ComputableRef compute)
+{
+	auto tempTask = _ctx->makeTask(COMPUTE_ONCE_POOL, true);
+	tempTask->record([compute](vk::CommandBuffer * cmd) {
+		compute->recordCompute(cmd);
+	});
+	tempTask->execute(true);
 }
 
 void VultureGPUService::setupComposite(const char * vertPath, const char * fragPath) {
@@ -132,7 +142,7 @@ void VultureGPUService::recordCompositeTasks()
 
 void VultureGPUService::recordSceneTasks()
 {
-
+	_sceneLock.lock();
 	_sceneTasks->at(0)->record([=](vk::CommandBuffer * cmd) {
 
 			cmd->setViewport(0, 1, &_sceneRenderer->getFullViewport());
@@ -147,11 +157,14 @@ void VultureGPUService::recordSceneTasks()
 
 			});
 	});
+	_sceneDirty = false;
+	_sceneLock.unlock();
 
 }
 
 void VultureGPUService::recordComputeTasks()
 {
+	_computeLock.lock();
 	_computeTasks->at(0)->record([=](vk::CommandBuffer * cmd) {
 
 		for (auto & cmp : _meshComputes) {
@@ -159,14 +172,17 @@ void VultureGPUService::recordComputeTasks()
 		}
 		
 	});
+
+	_computeDirty = false;
+	_computeLock.unlock();
 }
 
 void VultureGPUService::setSceneGlobals(SceneGlobals globals)
 {
-	setGlobalsLock.lock();
+	_setGlobalsLock.lock();
 	_uScene->at(0) = globals;
 	_uScene->sync();
-	setGlobalsLock.unlock();
+	_setGlobalsLock.unlock();
 }
 
 bool VultureGPUService::update()
@@ -186,15 +202,12 @@ bool VultureGPUService::update()
 
 	auto tStart = Time::nowSec();
 
-	setGlobalsLock.lock();
+	_setGlobalsLock.lock();
 		
 	_computeTasks->at(0)->execute(false, {}, { _computeSemaphore });
 
 	_sceneTasks->at(0)->execute(false, { _computeSemaphore }, { _sceneSemaphore });
 
-		
-
-	//Submit command buffer
 	_compositeTasks->at(_swapchain->getRenderingIndex())->execute(
 		true,
 		{ 
@@ -203,7 +216,11 @@ bool VultureGPUService::update()
 		}
 	);
 
-	setGlobalsLock.unlock();
+	auto tStop = Time::nowSec();
+
+	std::cout << 1.0 / (tStop - tStart) << std::endl;
+
+	_setGlobalsLock.unlock();
 
 		
 	//Present current frame to screen
@@ -215,12 +232,19 @@ bool VultureGPUService::update()
 	return true;
 }
 
-void VultureGPUService::addMeshRender(VultureMeshRenderRef render)
+void VultureGPUService::addMeshRender(MeshRenderRef render)
 {
+	_sceneLock.lock();
 	_meshRenders.push_back(render);
+	_sceneDirty = true;
+	_sceneLock.unlock();
 }
 
-void VultureGPUService::addMeshCompute(VultureMeshComputeRef meshCompute)
+void VultureGPUService::addCompute(ComputableRef meshCompute)
 {
+	_computeLock.lock();
 	_meshComputes.push_back(meshCompute);
+	_computeDirty = true;
+	_computeLock.unlock();
+
 }

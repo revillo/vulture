@@ -1,6 +1,6 @@
 #include "VultureMeshCompute.h"
 
-VultureMeshCompute::VultureMeshCompute(VulkanContextRef ctx, const char * computePath, uint32 bufferSize, uint32 numBuffers, uint32 groupSize)
+ComputeMesh::ComputeMesh(VulkanContextRef ctx, const char * computePath, uint32 bufferSize, uint32 numBuffers, uint32 groupSize)
 	:_ctx(ctx)
 	, _bufferSize(bufferSize)
 	, _groupSize(groupSize)
@@ -24,7 +24,7 @@ VultureMeshCompute::VultureMeshCompute(VulkanContextRef ctx, const char * comput
 	
 }
 
-void VultureMeshCompute::recordCompute(vk::CommandBuffer * cmd)
+void ComputeMesh::recordCompute(vk::CommandBuffer * cmd)
 {
 	_pipeline->bind(cmd);
 
@@ -38,16 +38,14 @@ void VultureMeshCompute::recordCompute(vk::CommandBuffer * cmd)
 
 }
 
-uint32 VultureMeshCompute::getNumVerts()
+void ComputeMesh::draw(vk::CommandBuffer * cmd, uint32 numInstances)
 {
-	return 3;
+	cmd->draw(getNumVerts(), numInstances, 0, 0);
 }
 
-VultureMeshCompute::~VultureMeshCompute()
-{
-}
 
-VultureMeshCompute::VultureMeshCompute(VulkanContextRef ctx) :
+
+ComputeMesh::ComputeMesh(VulkanContextRef ctx) :
 	_ctx(ctx)
 {
 

@@ -1,8 +1,9 @@
 #version 430
 
-layout(triangles, equal_spacing, cw) in;
+layout(quads, equal_spacing, cw) in;
 
 layout(location = 0) in vec3 tcPosition[];
+layout(location = 1) in vec4 tcNormal[];
 
 layout (set = 0, binding = 0) uniform SceneGlobals{
 	mat4 perspective;
@@ -12,15 +13,28 @@ layout (set = 0, binding = 0) uniform SceneGlobals{
 	vec4 time;
 } uScene;
 
+
+
 void main()
 {
-    vec3 p0 = gl_TessCoord.x * tcPosition[0];
-    vec3 p1 = gl_TessCoord.y * tcPosition[1];
-    vec3 p2 = gl_TessCoord.z * tcPosition[2];
+
+    float u = gl_TessCoord.x;
+    float v = gl_TessCoord.y;
+
+    vec3 p0 = mix(tcPosition[0], tcPosition[3], u);
+    vec3 p1 = mix(tcPosition[1], tcPosition[2], u);
+    vec3 wPos = mix(p0, p1, v);
     
-    vec3 wPos = normalize(p0 + p1 + p2);
-    wPos = p0 + p1 + p2;
     
-  
+    vec4 n0 = mix(tcNormal[0].xyzw, tcNormal[3].xyzw, u);
+    vec4 n1 = mix(tcNormal[1].xyzw, tcNormal[2].xyzw, u);
+    vec4 normal = mix(n0, n1, v);
+    
+    //float normalScale = mix(scale1, scale2, v);
+    
+   float normalScale = mix(tcNormal[0].w, tcNormal[1].w, v * v * (3.0 - 2.0 * v));
+    
+    wPos += normalize(normal.xyz) * sqrt(normalScale);
+    
     gl_Position = uScene.perspective * uScene.view * vec4(wPos, 1);
 }

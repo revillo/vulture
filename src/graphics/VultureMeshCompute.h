@@ -1,37 +1,47 @@
 #pragma once
 #include "Vulcro.h"
+#include "graphics\VultureMesh.h"
 
-class VultureMeshCompute {
+class IComputable {
+public:
+
+	virtual void recordCompute(vk::CommandBuffer * cmd) = 0;
+};
+
+typedef shared_ptr<IComputable> ComputableRef;
+
+class ComputeMesh : public IComputable, public IMesh {
 
 public:
 
-	static shared_ptr<VultureMeshCompute> make(VulkanContextRef ctx, const char * computePath, uint32 bufferSize, uint32 numBuffers, uint32 groupSize) {
-		return make_shared<VultureMeshCompute>(ctx, computePath, bufferSize, numBuffers, groupSize);
+	//IComputable
+	virtual void recordCompute(vk::CommandBuffer * cmd) override;
+
+
+	//IMesh
+	VulkanUniformSetRef getUniformSet() override {
+		return _uniformSet;
 	}
 
-	VultureMeshCompute(VulkanContextRef ctx, const char * computePath, uint32 bufferSize, uint32 numBuffers, uint32 groupSize);
+	virtual void draw(vk::CommandBuffer *cmd, uint32 numInstances) override;
 
-	virtual void recordCompute(vk::CommandBuffer * cmd);
 
 	VulkanBufferRef getSSBO() {
 		return _ssbo;
-	}
-
-	VulkanUniformSetRef getUniformSet() {
-		return _uniformSet;
 	}
 
 	VulkanUniformSetLayoutRef getUniformSetLayout() {
 		return _uniformLayout;
 	}
 
-	virtual uint32 getNumVerts();
+	virtual uint32 getNumVerts() = 0;
 
-	~VultureMeshCompute();
 
 protected:
 
-	VultureMeshCompute(VulkanContextRef ctx);
+	ComputeMesh(VulkanContextRef ctx, const char * computePath, uint32 bufferSize, uint32 numBuffers, uint32 groupSize);
+
+	ComputeMesh(VulkanContextRef ctx);
 
 	uint32 _bufferSize;
 
@@ -50,4 +60,4 @@ protected:
 	uint32 _groupSize;
 };
 
-typedef shared_ptr<VultureMeshCompute> VultureMeshComputeRef;
+typedef shared_ptr<ComputeMesh> ComputeMeshRef;

@@ -2,23 +2,27 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-#define MAX_SPLINES 2
+#define MAX_SPLINES 20
 
 layout(local_size_x = 4, local_size_y = 2, local_size_z = 1) in;
 
-struct Spline {
-  vec4 points[2];
-  vec4 normals[2];
-  vec4 tangents[2];
+struct Point {
+  vec4 pos;
+  vec4 quat;
+};
+
+struct Link {
+  uint pis[2];
+  uint cs[2];
 };
 
 struct Skeleton {
-  
+  vec4 info;
   mat4 modelMatrix;
-  uvec4 padding;
-  Spline splines[MAX_SPLINES];
-
+  Point points[20];
+  Link links[MAX_SPLINES];
 };
+
 
 layout(std430, set = 0, binding = 0) buffer SkeletonBuffer
 {
@@ -27,9 +31,15 @@ layout(std430, set = 0, binding = 0) buffer SkeletonBuffer
   
 } skeletonBuffer;
 
+
+struct Vertex {
+  vec4 position;
+  vec4 normal;
+};
+
 layout(std430, set = 1, binding = 0) buffer Mesh
 {
-   vec4 points[];
+   Vertex vertices[];
 } mesh;
 
 
@@ -50,53 +60,121 @@ vec3 Slerp(vec3 r1, vec3 r2, float t)
 	
 	return normalize(P) * length(mix(length(n1), length(n2), t));
 }
-vec3 rotationAxisAngle(vec3 v, vec3 axis, float angle)
-{
-	axis = normalize(axis);
+
+mat3 rotationMatrix(vec3 axis, float angle) {
+  axis = normalize(axis);
 	float s = sin(angle);
 	float c = cos(angle);
 	float oc = 1.0 - c;
-
-	return mat3(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s,
+  
+  return mat3(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s,
 		oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s, 
 		oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c 
-		) * v;
+		);
+
+}
+
+vec3 rotationAxisAngle(vec3 v, vec3 axis, float angle)
+{
+	return rotationMatrix(axis, angle) * v;
 }
 
 
 const uint pointsPerRing = gl_WorkGroupSize.x;
 const uint numRings = gl_WorkGroupSize.y;
 const uint pointsPerSpline = pointsPerRing * numRings;
+const uint pointsPerSkeleton = pointsPerSpline * MAX_SPLINES; 
  
 #define PI2 6.2831853f
 
 void main() {
 
-  const uint splineIndex = gl_WorkGroupID.x;
+  const uint skeletonIndex = gl_WorkGroupID.x;
+  const uint splineIndex = gl_WorkGroupID.y;
+  
+  Skeleton skeleton = skeletonBuffer.skeletons[skeletonIndex];
+  
+  Link link = skeleton.links[splineIndex];
+  
+  uint ring = gl_LocalInvocationID.y;
+  uint slice = gl_LocalInvocationID.x;
+  float tr = float(ring) / (numRings - 1);
+  float ts = float(slice) / pointsPerRing;
+  
+  uint pid = (skeletonIndex * pointsPerSkeleton)
+    + (splineIndex * pointsPerSpline)
+    + (ring * pointsPerRing) + slice;
 
-  Spline spline = skeletonBuffer.skeletons[0].splines[splineIndex];
+  if (skeleton.info.x <= splineIndex) {
+    mesh.vertices[pid].position = vec4(-1.0, -1.0, -1.0, 0.0) * 100.0;
+    mesh.vertices[pid].normal = vec4(0.0, 0.0, 0.0, 0.0);
+    return;
+  }
   
-  uvec2 lid = gl_LocalInvocationID.xy;
+  Point point = skeleton.points[link.pis[ring]];
   
-  uint pid = splineIndex * pointsPerSpline + (lid.y * pointsPerRing) + lid.x;
+  vec3 center = (skeleton.modelMatrix * vec4(point.pos.xyz, 1.0)).xyz;
   
-  float ty = float(lid.y) / (numRings - 1);
-  float tx = float(lid.x) / pointsPerRing;
+  float scale = point.pos.w;
   
+  //vec3 tangent = point.quat.xyz;
+  //vec3 normal = getNormal(point.quat);
+  //normal = rotationAxisAngle(normal, tangent, ts * PI2);
   
-  //vec3 center = mix(spline.p1.xyz, spline.p2.xyz, ty);
-  //vec3 ray = Slerp(spline.nrm1.xyz, spline.nrm2.xyz, ty);
-  //ray = rotationAxisAngle(ray, normalize(spline.p2.xyz -    spline.p1.xyz), tx * PI2);
- 
+  uint myr = link.cs[ring] % 10;
+  uint c = link.cs[ring] / 10;
+  float cd = float(c) + 1;
   
-  vec3 center = spline.points[lid.y].xyz;
-  vec3 normal = spline.normals[lid.y].xyz;
-  vec3 tangent = spline.tangents[lid.y].xyz;
+  float myTheta = (float(myr) / cd) * PI2;
+  float oneTheta = (1.0 / cd) * PI2;
+  
+  vec4 locDir;
+  
+  if (c == 0) {
+    
+    mat3 rMat = rotationMatrix(point.quat.xyz, point.quat.w);
+    locDir.xyz = rotationAxisAngle(rMat * vec3(0.0, 1.0, 0.0), rMat * vec3(0.0, 0.0, 1.0), ts * PI2);
+    locDir.w = 0.0;
+    
+  } else if (c == 1) {
+    
+    mat3 rMat = rotationMatrix(point.quat.xyz, point.quat.w);
+    locDir.xyz = rotationAxisAngle(rMat * vec3(0.0, 1.0, 0.0), rMat * vec3(0.0, 0.0, 1.0), ts * PI2);
+    locDir.w = 1.0;
+    
+  } else {
+    mat3 rMat = rotationMatrix(point.quat.xyz, point.quat.w);
+
+   locDir.w = 1.0;
+    if (slice == 0) {
+      
+      locDir.xyz = rMat * vec3(0.0, 1.0, 0.0);
+      
+    } else if (slice == 2) {
+      
+      locDir.xyz = rMat * vec3(0.0, -1.0, 0.0);
+      
+    } else if ((slice == 1 && ring == 1) || (slice == 3 && ring == 0)) {
+      
+      locDir.xyz = rotationAxisAngle(rMat * vec3(0.0, 0.0, -1.0), rMat * vec3(0.0, 1.0, 0.0), myTheta + oneTheta * 0.5);
+      
+      locDir.w = 1.0;
    
-  normal = rotationAxisAngle(normal, tangent, tx * PI2);
+    } else {
+      
+      locDir.xyz = rotationAxisAngle(rMat * vec3(0.0, 0.0, -1.0), rMat * vec3(0.0, 1.0, 0.0), myTheta - oneTheta * 0.5);
+      locDir.w = 1.0;
+      
+    }
+    
+    
+  }
   
-  mesh.points[pid] = vec4(center + normal, 1.0);
+  locDir.w *= scale;
 
+  //mesh.vertices[pid].position = vec4(center + locDir, 1.0);
+  mesh.vertices[pid].position = vec4(center, 1.0);
+  mesh.vertices[pid].normal = locDir;
   
   return;
 }

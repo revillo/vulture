@@ -3,7 +3,7 @@
 #include "VultureMeshCompute.h"
 
 template <class Skeleton>
-class VultureSplineCompute : public VultureMeshCompute {
+class VultureSplineCompute : public ComputeMesh {
 
 
 public:
@@ -14,15 +14,18 @@ public:
 	}
 
 	VultureSplineCompute(VulkanContextRef ctx, uint32 numSkeletons, uint32 maxSplines, Skeleton * data = nullptr)
-		:VultureMeshCompute(ctx),
+		:ComputeMesh(ctx),
 		_numSkeletons(numSkeletons),
 		_maxSplines(maxSplines)
 	{
-		
+		struct Vertex {
+			vec4 position;
+			vec4 normal;
+		};
 
 		_skeletonBuffer = std::make_shared<VulkanBuffer>(_ctx, vk::BufferUsageFlagBits::eStorageBuffer, sizeof(Skeleton) * numSkeletons, VulkanBuffer::CPU_ALOT, data);
 
-		_ssbo = std::make_shared<VulkanBuffer>(_ctx, vk::BufferUsageFlagBits::eStorageBuffer, sizeof(vec4) * 8 * maxSplines, VulkanBuffer::CPU_NEVER);
+		_ssbo = std::make_shared<VulkanBuffer>(_ctx, vk::BufferUsageFlagBits::eStorageBuffer, sizeof(Vertex) * 8 * maxSplines * numSkeletons, VulkanBuffer::CPU_NEVER);
 
 		_uniformLayout = ctx->makeUniformSetLayout({
 			ULB(1, vk::DescriptorType::eStorageBuffer)
@@ -48,23 +51,22 @@ public:
 		_skeletonSet->bindBuffer(0, _skeletonBuffer->getDBI(), vk::DescriptorType::eStorageBuffer);
 	};
 
-	~VultureSplineCompute() {};
 
 	uint32 getNumVerts() {
-		return 24 *_maxSplines * _numSkeletons;
+		return 16 *_maxSplines * _numSkeletons;
 	}
 
 
-	void recordCompute(vk::CommandBuffer * cmd) {
+	void recordCompute(vk::CommandBuffer * cmd) override {
 
 		_pipeline->bind(cmd);
 
 		_pipeline->bindUniformSets(cmd, {
 			_skeletonSet,
 			_uniformSet
-			});
+		});
 
-		cmd->dispatch(_maxSplines, 1, 1);
+		cmd->dispatch(_numSkeletons, _maxSplines, 1);
 
 		return;
 

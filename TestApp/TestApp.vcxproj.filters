@@ -19,6 +19,15 @@
     <Filter Include="vulture">
       <UniqueIdentifier>{9fc0a741-a0cc-4622-beea-bd1f7191eb24}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vulture\models">
+      <UniqueIdentifier>{878123bc-3089-4231-952e-17f233c83f1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vulture\graphics">
+      <UniqueIdentifier>{d15b25de-9232-43fc-b80f-0188baf70021}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vulture\views">
+      <UniqueIdentifier>{c61dca33-c61d-48c6-aea8-2c049b9fd84f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -72,17 +81,26 @@
     <ClCompile Include="..\src\VultureService.cpp">
       <Filter>vulture</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\graphics\VultureGPUService.cpp">
+      <Filter>vulture\graphics</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\graphics\VultureMeshCompute.cpp">
-      <Filter>vulture</Filter>
+      <Filter>vulture\graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\src\graphics\VultureMeshRender.cpp">
-      <Filter>vulture</Filter>
+      <Filter>vulture\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\graphics\VultureGPUService.cpp">
-      <Filter>vulture</Filter>
+    <ClCompile Include="..\src\models\VulturePrimitives.cpp">
+      <Filter>vulture\models</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\graphics\VultureSplineCompute.cpp">
-      <Filter>vulture</Filter>
+    <ClCompile Include="..\src\views\VulturePlanetView.cpp">
+      <Filter>vulture\views</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\models\VulturePlanet.cpp">
+      <Filter>vulture\models</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\views\VultureTerrainView.cpp">
+      <Filter>vulture\views</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -146,26 +164,44 @@
     <ClInclude Include="TestApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\graphics\VultureMeshCompute.h">
-      <Filter>vulture</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\VultureMeshGroup.h">
-      <Filter>vulture</Filter>
+    <ClInclude Include="..\src\models\VultureSkeleton.h">
+      <Filter>vulture\models</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics\VultureGPUService.h">
-      <Filter>vulture</Filter>
+      <Filter>vulture\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\VultureMeshCompute.h">
+      <Filter>vulture\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\VultureMeshGroup.h">
+      <Filter>vulture\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics\VultureMeshRender.h">
-      <Filter>vulture</Filter>
+      <Filter>vulture\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics\VultureSplineCompute.h">
-      <Filter>vulture</Filter>
+      <Filter>vulture\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics\VultureSplineRender.h">
-      <Filter>vulture</Filter>
+      <Filter>vulture\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\models\VultureSkeleton.h">
-      <Filter>vulture</Filter>
+    <ClInclude Include="..\src\models\VulturePlanet.h">
+      <Filter>vulture\models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\models\VulturePrimitives.h">
+      <Filter>vulture\models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\views\VulturePlanetView.h">
+      <Filter>vulture\views</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\VultureMesh.h">
+      <Filter>vulture\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\views\VultureTerrainView.h">
+      <Filter>vulture\views</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\views\VultureView.h">
+      <Filter>vulture\views</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 
 #include "VultureService.h"
 #include "graphics/VultureMeshRender.h"
+#include "graphics/VultureMeshCompute.h"
 #include "Vulcro.h"
 #include <mutex>
 
@@ -29,6 +30,7 @@ public:
 	virtual void setupComposite(const char * vertPath, const char * fragPath);
 	virtual void setupCompute();
 
+	virtual void computeOnce(ComputableRef compute);
 	
 	virtual void recordCompositeTasks();
 	virtual void recordSceneTasks();
@@ -37,8 +39,8 @@ public:
 	virtual void setSceneGlobals(SceneGlobals globals);
 
 	virtual bool update();
-	virtual void addMeshRender(VultureMeshRenderRef render);
-	virtual void addMeshCompute(VultureMeshComputeRef meshCompute);
+	virtual void addMeshRender(MeshRenderRef meshRender);
+	virtual void addCompute(ComputableRef compute);
 	
 	VulkanUniformSetLayoutRef getSceneGlobalsLayout() {
 		return _sceneGlobalLayout;
@@ -48,6 +50,9 @@ public:
 		return _sceneRenderer;
 	}
 
+	VulkanContextRef getContext() {
+		return _ctx;
+	}
 	
 protected:
 
@@ -59,7 +64,10 @@ protected:
 		vec2 uv;
 	};
 	
-	mutex setGlobalsLock;
+	mutex _setGlobalsLock, _computeLock, _sceneLock;
+	
+	atomic<bool> _computeDirty = false;
+	atomic<bool> _sceneDirty = false;
 
 	shared_ptr<vbo<VertexUV>> _blitVBO;
 	shared_ptr<ibo> _blitIBO;
@@ -86,6 +94,6 @@ protected:
 	VulkanShaderRef _blitShader;
 
 	vector<VulkanImageRef> _sceneTargets;
-	vector<VultureMeshRenderRef> _meshRenders;
-	vector<VultureMeshComputeRef> _meshComputes;
+	vector<MeshRenderRef> _meshRenders;
+	vector<ComputableRef> _meshComputes;
 };

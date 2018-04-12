@@ -1,23 +1,22 @@
 #include "VultureMeshRender.h"
 
-VultureMeshRender::VultureMeshRender(VulkanPipelineRef pipeline, VultureMeshComputeRef meshCompute)
+
+MeshRender::MeshRender(VulkanPipelineRef pipeline, MeshRef mesh)
 	: _pipeline(pipeline)
-	, _meshCompute(meshCompute)
+	, _mesh(mesh)
 {
 
 }
 
-
-void VultureMeshRender::recordDraw(vk::CommandBuffer * cmd, VulkanUniformSetRef sceneGlobalSet)
+void MeshRender::recordDraw(vk::CommandBuffer * cmd, VulkanUniformSetRef sceneGlobalSet)
 {
 	_pipeline->bind(cmd);
 	
 	_pipeline->bindUniformSets(cmd, {
 		sceneGlobalSet,
-		_meshCompute->getUniformSet()
+		_mesh->getUniformSet()
 	});
 
-	//cmd->drawIndexed(_meshCompute->getNumVerts(), 1, 0, 0, 0);
-	cmd->draw(_meshCompute->getNumVerts(), 1, 0, 0);
+	_mesh->draw(cmd, 1);
 }
 

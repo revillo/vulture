@@ -1,14 +1,7 @@
 #pragma once
 #include "VultureApp.h"
 #include "graphics/VultureGPUService.h"
-
-class TestApp :
-	public VultureApp
-{
-public:
-	TestApp();
-	~TestApp();
-};
+#include "views/VultureTerrainView.h"
 
 class TestSplineApp :
 	public VultureApp
@@ -19,9 +12,19 @@ public:
 	void run();
 	void update();
 
+	void setupScene();
+
+	void addTree();
+	void addCreature();
+
 protected:
 
+
+	TerrainViewRef _terrain;
 	double startTime;
+	VulkanShaderRef _skeletonComputeShader;
+	VulkanShaderRef _skeletonRenderShader;
+
 	VultureGPUService::SceneGlobals _sceneGlobals;
 	shared_ptr<VultureGPUService> gpuService;
 };
