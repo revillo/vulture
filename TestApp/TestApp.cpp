@@ -10,8 +10,8 @@ TestSplineApp::TestSplineApp() :
 
 	setupScene();
 	
-	addTree();
-	addCreature();
+	//addTree();
+	//addCreature();
 
 	auto grid = Primitives::Grid(2, 2);
 
@@ -22,8 +22,6 @@ TestSplineApp::TestSplineApp() :
 	gpuService->recordSceneTasks();
 	gpuService->recordCompositeTasks();
 
-	startTime = Time::nowSec();
-
 	runService(gpuService, 10);
 	run();
 }
@@ -33,13 +31,16 @@ TestSplineApp::~TestSplineApp()
 }
 
 void TestSplineApp::update() {
-	float t = _sceneGlobals.time.x = static_cast<float>(Time::nowSec() - startTime);
+	float t = _timer.getSec();
+
 	t *= 0.5f;
-	float radius = 5.0;
+	float radius = 9.0;
+
+	_sceneGlobals.viewPos = vec4(sin(t) * radius, 3.0, cos(t) * radius, 1.0);
 
 	_sceneGlobals.view = lookAt(
-		vec3(sin(t) * radius, 2.0, cos(t) * radius),
-		vec3(0.0, 3.0, 0.0),
+		vec3(_sceneGlobals.viewPos),
+		vec3(0.0, 1.0, 0.0),
 		vec3(0.0, 1.0, 0.0)
 	);
 
@@ -50,7 +51,7 @@ void TestSplineApp::setupScene()
 {
 	auto vctx = _window.getContext();
 
-	auto diffuseTarget = vctx->makeImage(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled, _windowSize, vk::Format::eR8G8B8A8Unorm);
+	auto diffuseTarget = vctx->makeImage(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled, _windowSize * 2, vk::Format::eR8G8B8A8Unorm);
 	diffuseTarget->allocateDeviceMemory();
 	diffuseTarget->createImageView();
 	diffuseTarget->createSampler();
@@ -61,7 +62,7 @@ void TestSplineApp::setupScene()
 	gpuService->setupComposite("shaders/composite_vert.spv", "shaders/composite_frag.spv");
 	gpuService->setupCompute();
 
-	_sceneGlobals.perspective = vulcro::glProjFixYZ * glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 100.0f);
+	_sceneGlobals.perspective = vulcro::glProjFixYZ * glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 1000.0f);
 	_sceneGlobals.time.x = 0.0;
 	_sceneGlobals.viewPos = vec4(0.0, 0.0, 5.0, 1.0);
 

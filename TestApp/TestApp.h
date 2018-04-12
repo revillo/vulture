@@ -19,6 +19,7 @@ public:
 
 protected:
 
+	Timer _timer;
 
 	TerrainViewRef _terrain;
 	double startTime;

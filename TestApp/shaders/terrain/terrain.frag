@@ -1,29 +1,35 @@
 #version 430
-#extension GL_ARB_separate_shader_objects : enable
-#extension GL_ARB_shading_language_420pack : enable
+#extension GL_GOOGLE_include_directive : enable
 
 layout (location = 0) out vec4 OutColor;
 layout(location = 0) in vec3 wPos;
 layout(location = 1) in vec3 barys;
-layout (set = 0, binding = 0) uniform SceneGlobals{
-	mat4 perspective;
-	mat4 view;
-	vec4 viewPos;
-	vec4 sunDirWorld;
-	vec4 time;
-} uScene;
+layout(location = 2) in vec2 uv;
+layout(location = 3) in vec2 patchDist;
+
+#include "../globals.glsl"
 
 void main() {
     vec3 X = dFdx(wPos.xyz);
     vec3 Y = dFdy(wPos.xyz);
     vec3 normal = normalize(cross(X,Y));    
     
-    if (min(min(barys.x, barys.y), barys.z) < 0.02) {
-      OutColor = vec4(0.0, 0.0, 0.0, 1.0);
+    float pb = 0.01;
+    OutColor = vec4(uv, wPos.y, 1.0);
+    OutColor = vec4(uv, 0.0, 1.0);
+
+    if (patchDist.x < pb || patchDist.y < pb || patchDist.x > 1.0 - pb || patchDist.y > 1.0 - pb) 
+    {
+      OutColor = vec4(1.0, 1.0, 1.0, 1.0);
     } else {
-      OutColor = vec4(0.3, 0.6, 0.25, 1.0);
+      
+      if (min(min(barys.x, barys.y), barys.z) < 0.02) {
+            OutColor = vec4(0.0, 0.0, 0.0, 1.0);
+
+       // OutColor += vec4(0.5, 0.5, 0.2, 0.0);
+      }
     }
     
-      OutColor.xyz *= dot(normal, uScene.sunDirWorld.xyz) * 0.5 + 0.5;
+    OutColor.xyz *= dot(normal, uScene.sunDirWorld.xyz) * 0.5 + 0.5;
 
 }

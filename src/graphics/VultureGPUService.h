@@ -58,7 +58,8 @@ protected:
 
 	virtual void resize();
 
-	
+	Timer _timer;
+
 	struct VertexUV {
 		vec2 position;
 		vec2 uv;

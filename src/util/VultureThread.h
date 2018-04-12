@@ -12,4 +12,8 @@ public:
 		return std::async(std::launch::async, runnable);
 	}
 
+	static void pauseMS(uint32 milliseconds) {
+		std::this_thread::sleep_for(chrono::milliseconds(milliseconds));
+	}
+
 };

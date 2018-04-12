@@ -1,33 +1,40 @@
 #version 430
+#extension GL_GOOGLE_include_directive : enable
 
 layout(quads, equal_spacing, cw) in;
 
 layout(location = 0) in vec3 tcPosition[];
-//uniform layout(set = 1, binding = 0, r32f) image2D heightMap;
-uniform layout(set = 1, binding = 0) sampler2D heightMapSampler;
+layout(location = 1) in vec2 tcUV[];
 
-layout (set = 0, binding = 0) uniform SceneGlobals{
-	mat4 perspective;
-	mat4 view;
-	vec4 viewPos;
-	vec4 sunDirWorld;
-	vec4 time;
-} uScene;
+layout(location = 0) out vec2 teUV;
+layout(location = 1) out vec2 tePatchDist;
+
+#include "../globals.glsl"
+
+
+uniform layout(set = 1, binding = 0) sampler2D heightMapSampler;
 
 void main()
 {
-    float u = gl_TessCoord.x;
-    float v = gl_TessCoord.y;
+    float bx = gl_TessCoord.x;
+    float by = gl_TessCoord.y;
 
-    vec3 p0 = mix(tcPosition[0], tcPosition[1], u);
-    vec3 p1 = mix(tcPosition[3], tcPosition[2], u);
-    vec3 wPos = mix(p0, p1, v);
+    vec3 p0 = mix(tcPosition[0], tcPosition[1], bx);
+    vec3 p1 = mix(tcPosition[3], tcPosition[2], bx);
+    vec3 wPos = mix(p0, p1, by);
     
-    wPos.xz *= 1000.0;
-    //wPos.y = sin(wPos.x * 1.0);
     
-    //wPos.y = imageLoad(heightMap, ivec2(u * 63, v * 63)).r;
-   
-   wPos.y = texture(heightMapSampler, vec2(u,v)).r;
+    vec2 uv0 = mix(tcUV[0], tcUV[1], bx);
+    vec2 uv1 = mix(tcUV[3], tcUV[2], bx);
+    vec2 globalUV = mix(uv0, uv1, by);
+    
+    tePatchDist = vec2(bx,by);
+    
+    wPos.y = texture(heightMapSampler, globalUV).r;
+    //wPos.xz *= 10.0;
+    //wPos.xz -= vec2(5.0, 5.0);
+    
+    teUV = globalUV;
+    
     gl_Position = uScene.perspective * uScene.view * vec4(wPos, 1);
 }

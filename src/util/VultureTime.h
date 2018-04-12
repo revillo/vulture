@@ -5,31 +5,32 @@
 #include <thread>
 
 
-class Time {
+class Timer {
 
 public:
 
 	typedef double Seconds;
-	typedef long long Milliseconds;
+	typedef double Milliseconds;
 
 	using Clock = std::chrono::high_resolution_clock;
-	using Ms = std::chrono::milliseconds;
-	using Sec = std::chrono::seconds;
-	template<class Duration>
-	using TimePoint = std::chrono::time_point<Clock, Duration>;
+	
+	chrono::time_point<Clock> StartTimePoint;
 
-	static Seconds nowSec() {
-		
-		return nowMS() / 1000.0;
-
+	Timer() {
+		StartTimePoint = Clock::now();
 	}
 
-	static Milliseconds nowMS() {
-		auto t = Clock::now().time_since_epoch();
-		return std::chrono::duration_cast<Ms>(t).count();
+	Seconds getSec() {
+		chrono::time_point<Clock> n = Clock::now();
+		return chrono::duration_cast<chrono::microseconds>(n - StartTimePoint).count() * 1e-6;
 	}
 
-	static void pauseThreadMS(uint32 milliseconds) {
-		std::this_thread::sleep_for(Ms(milliseconds));
+	Milliseconds getMS() {
+		chrono::time_point<Clock> n = Clock::now();
+		return chrono::duration_cast<chrono::microseconds>(n - StartTimePoint).count() * 1e-3;
 	}
+
+
+	
 };
+

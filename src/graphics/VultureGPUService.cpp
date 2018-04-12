@@ -200,7 +200,9 @@ bool VultureGPUService::update()
 	}
 
 
-	auto tStart = Time::nowSec();
+	//auto tStart = Time::nowMS();
+
+	auto tStart = _timer.getSec();
 
 	_setGlobalsLock.lock();
 		
@@ -216,9 +218,11 @@ bool VultureGPUService::update()
 		}
 	);
 
-	auto tStop = Time::nowSec();
+	auto tStop = _timer.getSec();
+
 
 	std::cout << 1.0 / (tStop - tStart) << std::endl;
+	
 
 	_setGlobalsLock.unlock();
 

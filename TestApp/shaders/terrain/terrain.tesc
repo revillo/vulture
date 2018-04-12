@@ -1,30 +1,48 @@
 #version 430
-
+#extension GL_GOOGLE_include_directive : enable
 
 layout(vertices = 4) out;
 
 layout(location = 0) in vec3 vPosition[];
+layout(location = 1) in vec2 vUV[];
 
 layout(location = 0) out vec3 tcPosition[];
+layout(location = 1) out vec2 tcUV[];
 
 #define ID gl_InvocationID
 
-#define tessLevel 16
+#define tessLevel 4
 
-uint tessForPoint(vec3 point) {
-  return uint(max(1, tessLevel /  floor(length(point) * tessLevel + 1)));
+#include "../globals.glsl"
+
+
+uint tessForPoint(in vec3 point) {
+  
+  float dist = length(point - uScene.viewPos.xyz) / 20.0;
+  //float distinv = 8.0 / (length(point - uScene.viewPos.xyz) + 1);
+  //float dist = length(point) / 5.0;
+  
+  //return uint(max(1, distinv));
+  return uint(max(1, floor(tessLevel * (1.0 - dist) + 0.5)));
 }
 
 void main()
 {
     tcPosition[ID] = vPosition[ID];
+    tcUV[ID] = vUV[ID];
+    
     
    if (ID == 0) {
     
-        uint tess = tessForPoint((tcPosition[0] + tcPosition[2]) * 0.5);
+        uint tess = tessForPoint((vPosition[0] + vPosition[2]) * 0.5);
    
         gl_TessLevelInner[0] = tess;
         gl_TessLevelInner[1] = tess;
+        
+        //for (int i = 0; i < 4; i++) {
+        //  gl_TessLevelOuter[i] = tess;
+        //}
+        
     }
     
     
@@ -33,4 +51,14 @@ void main()
     gl_TessLevelOuter[ID] = tessForPoint(center * 0.5);
     
     
+    
+    /*
+    if (ID == 0) {
+      
+      gl_TessLevelInner[0] = 1;
+      gl_TessLevelInner[1] = 1;
+    
+    }
+    
+    gl_TessLevelOuter[ID] = 1;*/
 }

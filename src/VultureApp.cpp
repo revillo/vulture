@@ -27,7 +27,7 @@ void VultureApp::runService(VultureServiceRef service, uint32 interval)
 	_services.emplace_back(service, interval, Thread::async([=]() {
 
 		while (service->update()) {
-			Time::pauseThreadMS(interval);
+			Thread::pauseMS(interval);
 		}
 
 	}));

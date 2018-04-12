@@ -35,10 +35,6 @@ protected:
 
 	ivec2 _windowSize;
 
-	Time::Seconds _appTime;
-
-	Time::Seconds _appStartTime;
-
 	VulkanWindow _window;
 
 	vector<ServiceHandler> _services;
