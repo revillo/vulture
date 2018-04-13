@@ -1,0 +1,22 @@
+#version 430
+#extension GL_GOOGLE_include_directive : enable
+#include "../util/noise.glsl"
+#include "terrain_common.glsl"
+
+
+void erode() {
+  Neighborhood n = getNeighborhood();
+
+  float result = 0.0;
+  for (int i = 0; i < 4; i++) {
+    result += n.ns[i];
+  }    
+  
+  writeHeightmap(result / 4.0);
+}
+
+void main() {
+  
+  erode();
+ 
+}

@@ -12,21 +12,33 @@ layout(location = 3) in vec2 patchDist;
 void main() {
     vec3 X = dFdx(wPos.xyz);
     vec3 Y = dFdy(wPos.xyz);
-    vec3 normal = normalize(cross(X,Y));    
+    vec3 normal = normalize(cross(Y,X));    
     
     float pb = 0.01;
-    OutColor = vec4(uv, wPos.y, 1.0);
-    OutColor = vec4(uv, 0.0, 1.0);
 
+    if (wPos.y > 0.0) {
+      OutColor = vec4(0.4, 0.6, 0.2, 1.0);
+      
+      if (wPos.y < 0.05) {
+        OutColor = vec4(0.8, 0.8, 0.6, 1.0);
+      }
+    
+    } else {
+      OutColor = vec4(0.3, 0.3, 0.7, 1.0);
+    }
+    
+   
+    
+    //OutColor = vec4(normal * 0.5 + vec3(0.5, 0.5, 0.5), 1.0);
+    
     if (patchDist.x < pb || patchDist.y < pb || patchDist.x > 1.0 - pb || patchDist.y > 1.0 - pb) 
     {
-      OutColor = vec4(1.0, 1.0, 1.0, 1.0);
+     // OutColor = vec4(1.0, 1.0, 1.0, 1.0);
     } else {
       
       if (min(min(barys.x, barys.y), barys.z) < 0.02) {
-            OutColor = vec4(0.0, 0.0, 0.0, 1.0);
+            //OutColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-       // OutColor += vec4(0.5, 0.5, 0.2, 0.0);
       }
     }
     

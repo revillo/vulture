@@ -31,6 +31,7 @@ public:
 	virtual void setupCompute();
 
 	virtual void computeOnce(ComputableRef compute);
+	virtual void computeNTimes(ComputableRef compute, uint32 n);
 	
 	virtual void recordCompositeTasks();
 	virtual void recordSceneTasks();

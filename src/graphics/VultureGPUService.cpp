@@ -40,6 +40,17 @@ void VultureGPUService::setupCompute()
 	_computeTasks = _ctx->makeTaskGroup(1, COMPUTE_TASK_POOL);
 }
 
+void VultureGPUService::computeNTimes(ComputableRef compute, uint32 n)
+{
+	auto tempTask = _ctx->makeTask(COMPUTE_ONCE_POOL, false);
+	tempTask->record([compute](vk::CommandBuffer * cmd) {
+		compute->recordCompute(cmd);
+	});
+	for (int i = 0; i < n; i++) {
+		tempTask->execute(true);
+	}
+}
+
 void VultureGPUService::computeOnce(ComputableRef compute)
 {
 	auto tempTask = _ctx->makeTask(COMPUTE_ONCE_POOL, true);

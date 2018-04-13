@@ -6,6 +6,8 @@ TerrainView::TerrainView(VultureGPUService * service)
 
 	terrainGen = make_shared<TerrainGen>(service);
 	service->computeOnce(terrainGen);
+	terrainGen->stage = 1;
+	service->computeNTimes(terrainGen, 24);
 
 	VulkanContextRef ctx = _gpuService->getContext();
 

@@ -2,6 +2,7 @@
 #include "views/VultureView.h"
 #include "graphics/VultureMeshCompute.h"
 
+
 class TerrainView : public View {
 
 public:
@@ -9,11 +10,11 @@ public:
 	class TerrainGen : public IComputable, public IMesh {
 	public:
 
-		TerrainGen(VultureGPUService * service)
+		TerrainGen(VultureGPUService * service, ivec2 textureSize = ivec2(1024, 1024))
 		{
 			auto ctx = service->getContext();
-
-			heightMap = ctx->makeImage(vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled, ivec2(64, 64), vk::Format::eR32Sfloat);
+			_textureSize = textureSize;
+			heightMap = ctx->makeImage(vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled, textureSize, vk::Format::eR32Sfloat);
 			heightMap->allocateDeviceMemory();
 			heightMap->createImageView(vk::ImageAspectFlagBits::eColor);
 			heightMap->createSampler();
@@ -26,9 +27,18 @@ public:
 			set = service->getContext()->makeUniformSet(setLayout);
 			set->bindStorageImage(0, heightMap);
 
-			_pipeline = service->getContext()->makeComputePipeline(
-				service->getContext()->makeComputeShader(
-					"shaders/terrain/terrain_comp.spv",
+			_initPipeline = ctx->makeComputePipeline(
+				ctx->makeComputeShader(
+					"shaders/terrain/terrain_init_comp.spv",
+					{
+						setLayout
+					}
+				)
+			);
+
+			_simPipeline = ctx->makeComputePipeline(
+				ctx->makeComputeShader(
+					"shaders/terrain/terrain_simulate_comp.spv",
 					{
 						setLayout
 					}
@@ -56,17 +66,31 @@ public:
 
 
 		void recordCompute(vk::CommandBuffer * cmd) override {
-			_pipeline->bind(cmd);
-			_pipeline->bindUniformSets(cmd, { set });
-			cmd->dispatch(64, 64, 1);
+			
+			if (stage == 0) {
+				_initPipeline->bind(cmd);
+				_initPipeline->bindUniformSets(cmd, { set });
+			}
+			else if (stage == 1) {
+				_simPipeline->bind(cmd);
+				_simPipeline->bindUniformSets(cmd, { set });
+			}
+			else {
+				return;
+			}
+
+			cmd->dispatch(_textureSize.x / 32, _textureSize.y / 32, 1);
 		}
 
-		VulkanComputePipelineRef _pipeline;
+		VulkanComputePipelineRef _initPipeline;
+		VulkanComputePipelineRef _simPipeline;
 		VulkanImageRef heightMap;
 		VulkanUniformSetLayoutRef setLayout;
 		VulkanUniformSetRef set;
 
+		uint32 stage = 0;
 
+		ivec2 _textureSize;
 		VulkanUniformSetLayoutRef sampledSetLayout;
 		VulkanUniformSetRef sampledSet;
 

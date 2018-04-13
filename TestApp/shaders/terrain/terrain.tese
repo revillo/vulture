@@ -8,6 +8,7 @@ layout(location = 1) in vec2 tcUV[];
 
 layout(location = 0) out vec2 teUV;
 layout(location = 1) out vec2 tePatchDist;
+layout(location = 2) out vec3 teWPos;
 
 #include "../globals.glsl"
 
@@ -21,7 +22,7 @@ void main()
 
     vec3 p0 = mix(tcPosition[0], tcPosition[1], bx);
     vec3 p1 = mix(tcPosition[3], tcPosition[2], bx);
-    vec3 wPos = mix(p0, p1, by);
+    teWPos = mix(p0, p1, by);
     
     
     vec2 uv0 = mix(tcUV[0], tcUV[1], bx);
@@ -30,11 +31,10 @@ void main()
     
     tePatchDist = vec2(bx,by);
     
-    wPos.y = texture(heightMapSampler, globalUV).r;
-    //wPos.xz *= 10.0;
-    //wPos.xz -= vec2(5.0, 5.0);
+    teWPos.y = texture(heightMapSampler, globalUV).r;
+
     
     teUV = globalUV;
     
-    gl_Position = uScene.perspective * uScene.view * vec4(wPos, 1);
+    gl_Position = uScene.perspective * uScene.view * vec4(teWPos, 1);
 }

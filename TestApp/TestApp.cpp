@@ -33,14 +33,14 @@ TestSplineApp::~TestSplineApp()
 void TestSplineApp::update() {
 	float t = _timer.getSec();
 
-	t *= 0.5f;
-	float radius = 9.0;
+	t *= 0.1f;
+	float radius = 8.0;
 
-	_sceneGlobals.viewPos = vec4(sin(t) * radius, 3.0, cos(t) * radius, 1.0);
+	_sceneGlobals.viewPos = vec4(sin(t) * radius, 2.0, cos(t) * radius, 1.0);
 
 	_sceneGlobals.view = lookAt(
 		vec3(_sceneGlobals.viewPos),
-		vec3(0.0, 1.0, 0.0),
+		vec3(_sceneGlobals.viewPos) * 0.9f - vec3(0.0, 0.2, 0.0),
 		vec3(0.0, 1.0, 0.0)
 	);
 

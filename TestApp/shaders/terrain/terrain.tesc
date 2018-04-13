@@ -11,7 +11,7 @@ layout(location = 1) out vec2 tcUV[];
 
 #define ID gl_InvocationID
 
-#define tessLevel 4
+#define tessLevel 8
 
 #include "../globals.glsl"
 
@@ -38,27 +38,12 @@ void main()
    
         gl_TessLevelInner[0] = tess;
         gl_TessLevelInner[1] = tess;
-        
-        //for (int i = 0; i < 4; i++) {
-        //  gl_TessLevelOuter[i] = tess;
-        //}
-        
+ 
     }
     
     
     vec3 center = vPosition[(ID) % 4] + vPosition[(ID + 3) % 4];
 
     gl_TessLevelOuter[ID] = tessForPoint(center * 0.5);
-    
-    
-    
-    /*
-    if (ID == 0) {
-      
-      gl_TessLevelInner[0] = 1;
-      gl_TessLevelInner[1] = 1;
-    
-    }
-    
-    gl_TessLevelOuter[ID] = 1;*/
+   
 }

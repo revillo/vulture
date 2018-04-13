@@ -1,0 +1,24 @@
+#version 430
+#extension GL_GOOGLE_include_directive : enable
+#include "../util/noise.glsl"
+#include "terrain_common.glsl"
+
+
+#define LAND_BIAS 0.2
+#define START_SCALE 9.0
+
+void main() {
+
+  vec2 uv = myCoords / vec2(gridSize - vec2(1.0, 1.0));
+  
+  vec4 result;
+  result.x = octNoise(uv * START_SCALE, 5) + LAND_BIAS;
+  
+  const float beachCutoff = 0.9;
+  const float beachSlope = 2.0;
+  
+  if (result.x < beachCutoff && result.x > 0.0) result.x = pow(abs(result.x), beachSlope) * pow(beachCutoff, 1.0 - beachSlope) * sign(result.x);
+
+  writeHeightmap(result.x);
+  
+}

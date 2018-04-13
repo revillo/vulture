@@ -32,8 +32,8 @@ float noise(vec2 x) {
 float octNoise(vec2 x, uint octaves) {
   float result = 0;
   for (uint i = 0; i < octaves; i++) {
-    float factor =  pow(2, float(i));
+    float factor = pow(2, float(i));
     result += noise(x * factor) / factor;
   }
-  return result;
+  return result - 1.0;
 }
