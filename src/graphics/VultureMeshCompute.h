@@ -19,7 +19,7 @@ public:
 
 
 	//IMesh
-	VulkanUniformSetRef getUniformSet() override {
+	VulkanUniformSetRef getMeshSet() override {
 		return _uniformSet;
 	}
 

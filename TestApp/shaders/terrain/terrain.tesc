@@ -18,7 +18,7 @@ layout(location = 1) out vec2 tcUV[];
 
 uint tessForPoint(in vec3 point) {
   
-  float dist = length(point - uScene.viewPos.xyz) / 20.0;
+  float dist = length(point - uScene.viewPos.xyz) / 2000.0;
   //float distinv = 8.0 / (length(point - uScene.viewPos.xyz) + 1);
   //float dist = length(point) / 5.0;
   

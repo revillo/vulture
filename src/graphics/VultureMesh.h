@@ -8,7 +8,11 @@ class IMesh : public OOP::Interface {
 
 public:
 
-	virtual VulkanUniformSetRef getUniformSet() {
+	virtual VulkanUniformSetRef getMeshSet() {
+		return nullptr;
+	}
+
+	virtual VulkanUniformSetLayoutRef getMeshSetLayout() {
 		return nullptr;
 	}
 

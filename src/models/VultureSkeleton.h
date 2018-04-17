@@ -1,23 +1,35 @@
 #pragma once
 #include "Vulcro.h"
 
-class VultureSkeleton {
+class SkeletalMesh{
+public:
+	struct Vertex {
+		vec4 position;
+		vec4 normal;
+	};
+};
+
+class Skeleton {
 
 public:
-	struct Spline {
-		vec4 p1;
-		vec4 p2;
-		vec4 ray1;
-		vec4 ray2;
+
+	struct Joint {
+		vec4 pos;
+		vec4 quat;
 	};
 
-	VultureSkeleton();
+	struct Link {
+		uint32 pi0;
+		uint32 pi1;
+		uint32 c0;
+		uint32 c1;
+	};
 
-	~VultureSkeleton();
-
-protected:
-
-	vector<Spline> _splines;
-
+	template <uint32 numJoints, uint32 numLinks>
+	struct Rig {
+		uvec4 info;
+		Joint joints[numJoints];
+		Link links[numLinks];
+	};
 
 };

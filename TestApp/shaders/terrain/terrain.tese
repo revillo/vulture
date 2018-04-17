@@ -11,7 +11,7 @@ layout(location = 1) out vec2 tePatchDist;
 layout(location = 2) out vec3 teWPos;
 
 #include "../globals.glsl"
-
+#include "terrain_constants.glsl"
 
 uniform layout(set = 1, binding = 0) sampler2D heightMapSampler;
 
@@ -31,7 +31,7 @@ void main()
     
     tePatchDist = vec2(bx,by);
     
-    teWPos.y = texture(heightMapSampler, globalUV).r;
+    teWPos.y = texture(heightMapSampler, globalUV).r * TERRAIN_Y_SCALE;
 
     
     teUV = globalUV;

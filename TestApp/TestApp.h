@@ -2,6 +2,7 @@
 #include "VultureApp.h"
 #include "graphics/VultureGPUService.h"
 #include "views/VultureTerrainView.h"
+#include "views/VultureTreeView.h"
 
 class TestSplineApp :
 	public VultureApp
@@ -21,7 +22,8 @@ protected:
 
 	Timer _timer;
 
-	TerrainViewRef _terrain;
+	TerrainViewRef _terrainView;
+	TreeViewRef _treeView;
 	double startTime;
 	VulkanShaderRef _skeletonComputeShader;
 	VulkanShaderRef _skeletonRenderShader;

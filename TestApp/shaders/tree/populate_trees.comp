@@ -1,0 +1,41 @@
+#version 430
+#extension GL_GOOGLE_include_directive : enable
+#include "../terrain/terrain_common.glsl"
+
+void main() {
+  
+  float groundHeight = sampleHeightmap(myCoords); 
+ 
+  
+  if (groundHeight > 0.05 && groundHeight < 0.2 && (myCoords.x % 4 == 2) && (myCoords.y % 4 == 2)) {
+    Rig rig;
+    
+    uint place = atomicAdd(treeBuffer.counter, 1);
+    //atomicMax(treeBuffer.counter, 1000);
+    
+    if (place >= MAX_TREES) {
+      return;
+    }
+    
+    vec2 uv = myCoords / vec2(gridSize - vec2(1.0, 1.0));
+    
+    vec3 uyv = vec3(uv.x, groundHeight, uv.y);
+    
+    vec3 worldPos = terrainLocalToWorld(uyv);
+    float scale = 0.4;
+
+    rig.info.x = 1; // 1 link
+    
+    rig.joints[0].pos = vec4(worldPos, scale);
+    rig.joints[0].quat = vec4(1.0, 0.0, 0.0, -radians(90.0));
+    rig.joints[1].pos = vec4(worldPos + vec3(0.0, 2.0 + groundHeight * 30.0, 0.0), scale);
+    rig.joints[1].quat = vec4(1.0, 0.0, 0.0, -radians(90.0));
+    
+    rig.links[0].pis[0] = 0;
+    rig.links[0].pis[1] = 1;
+    rig.links[0].cs[0] = 10;
+    rig.links[0].cs[1] = 10;
+    
+    treeBuffer.rigs[place] = rig;
+  }
+}

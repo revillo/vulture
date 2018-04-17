@@ -1,0 +1,13 @@
+#version 430
+#extension GL_GOOGLE_include_directive : enable
+#include "../util/noise.glsl"
+#include "terrain_common.glsl"
+
+
+void main() {
+
+  uint index = myCoords.x + (gridSize.x * myCoords.y);
+  float height = sampleHeightmap(myCoords);
+  dataBuffer.data[index].height.x = height;
+
+}

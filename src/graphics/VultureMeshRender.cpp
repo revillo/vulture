@@ -14,7 +14,7 @@ void MeshRender::recordDraw(vk::CommandBuffer * cmd, VulkanUniformSetRef sceneGl
 	
 	_pipeline->bindUniformSets(cmd, {
 		sceneGlobalSet,
-		_mesh->getUniformSet()
+		_mesh->getMeshSet()
 	});
 
 	_mesh->draw(cmd, 1);

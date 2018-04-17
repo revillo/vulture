@@ -111,8 +111,6 @@ void VultureGPUService::setupComposite(const char * vertPath, const char * fragP
 	_compositeTasks = _ctx->makeTaskGroup(_swapchain->numImages(), COMPOSITE_POOL);
 }
 
-
-
 VultureGPUService::~VultureGPUService()
 {
 	_ctx->getDevice().destroySemaphore(_sceneSemaphore);
@@ -120,7 +118,30 @@ VultureGPUService::~VultureGPUService()
 }
 
 void VultureGPUService::resize() {
-	
+	if (!_swapchain->resize()) {
+		return;
+	}
+
+	auto rect = _swapchain->getRect();
+
+	ivec2 windowSize;
+
+	windowSize.x = rect.extent.width;
+	windowSize.y = rect.extent.height;
+	for (auto &target : _sceneTargets) {
+		target->resize(windowSize * 2);
+	}
+
+	_sceneRenderer->resize();
+	_compositeRenderer->resize();
+
+	getContext()->resetTasks(SCENE_TASK_POOL);
+	getContext()->resetTasks(COMPOSITE_POOL);
+
+	_blitUniformSet->bindImages(_sceneTargets);
+
+	recordCompositeTasks();
+	recordSceneTasks();
 }
 
 

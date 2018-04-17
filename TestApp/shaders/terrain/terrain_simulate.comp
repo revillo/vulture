@@ -7,12 +7,44 @@
 void erode() {
   Neighborhood n = getNeighborhood();
 
-  float result = 0.0;
-  for (int i = 0; i < 4; i++) {
-    result += n.ns[i];
-  }    
+  float nleast = 100.0;
+  float nmost = -100.0;
   
-  writeHeightmap(result / 4.0);
+  uint ileast = 0;
+  uint imost = 0;
+  
+  float ds[4];
+  float me = n.me;
+  
+  if (me < 0.1) return;
+  
+  for (int i = 0; i < 4; i++) {
+    ds[i] = n.ns[i] - n.me;
+  }
+  
+  for (uint i = 0; i < 4; i++) {
+    //result += n.ns[i];
+    if (ds[i] < nleast) {
+      nleast = ds[i];
+      ileast = i;
+    }
+    
+    if (ds[i] > nmost) {
+      nmost = ds[i];
+      imost = i;
+    }
+  }
+
+  const float T = 1 / 16.0;
+    
+  if (nleast < 0 && nleast > -T) {
+    me += nleast / 2.0;
+  } else if (nmost > 0 && nmost < T) {
+    me += nmost / 2.0;
+  }
+      
+  
+  writeHeightmap(me);
 }
 
 void main() {

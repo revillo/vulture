@@ -102,6 +102,9 @@
     <ClCompile Include="..\src\views\VultureTerrainView.cpp">
       <Filter>vulture\views</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\views\VultureTreeView.cpp">
+      <Filter>vulture\views</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\vulcro\Vulcro\src\VulkanPipeline.h">
@@ -201,6 +204,9 @@
       <Filter>vulture\views</Filter>
     </ClInclude>
     <ClInclude Include="..\src\views\VultureView.h">
+      <Filter>vulture\views</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\views\VultureTreeView.h">
       <Filter>vulture\views</Filter>
     </ClInclude>
   </ItemGroup>

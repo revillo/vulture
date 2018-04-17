@@ -11,7 +11,7 @@ layout(location = 1) out vec4 tcNormal[];
 
 #define ID gl_InvocationID
 
-#define tessLevel 4
+#define tessLevel 1
 
 void main()
 {

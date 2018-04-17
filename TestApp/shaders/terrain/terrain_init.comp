@@ -3,13 +3,15 @@
 #include "../util/noise.glsl"
 #include "terrain_common.glsl"
 
-
+#define PI 3.1415926
 #define LAND_BIAS 0.2
 #define START_SCALE 9.0
 
 void main() {
 
   vec2 uv = myCoords / vec2(gridSize - vec2(1.0, 1.0));
+  
+  //vec2 uvtor = vec2(cos(uv.x * PI * 2.0), sin(uv.y * PI * 2.0));
   
   vec4 result;
   result.x = octNoise(uv * START_SCALE, 5) + LAND_BIAS;
@@ -21,4 +23,7 @@ void main() {
 
   writeHeightmap(result.x);
   
+  if (myCoords.x == 0 && myCoords.y == 0) {
+    treeBuffer.counter = 0;
+  }
 }

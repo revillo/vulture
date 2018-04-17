@@ -15,8 +15,11 @@ TestSplineApp::TestSplineApp() :
 
 	auto grid = Primitives::Grid(2, 2);
 
-	_terrain = make_shared<TerrainView>(gpuService.get());
-	_terrain->show();
+	_terrainView = make_shared<TerrainView>(gpuService.get());
+	_terrainView->show();
+
+	_treeView = make_shared<TreeView>(gpuService.get(), _terrainView->terrainGen);
+	_treeView->show();
 
 	gpuService->recordComputeTasks();
 	gpuService->recordSceneTasks();
@@ -34,13 +37,13 @@ void TestSplineApp::update() {
 	float t = _timer.getSec();
 
 	t *= 0.1f;
-	float radius = 8.0;
+	float radius = 800.0;
 
-	_sceneGlobals.viewPos = vec4(sin(t) * radius, 2.0, cos(t) * radius, 1.0);
+	_sceneGlobals.viewPos = vec4(sin(t) * radius, 200.0, cos(t) * radius, 1.0);
 
 	_sceneGlobals.view = lookAt(
 		vec3(_sceneGlobals.viewPos),
-		vec3(_sceneGlobals.viewPos) * 0.9f - vec3(0.0, 0.2, 0.0),
+		vec3(_sceneGlobals.viewPos) * 0.9f - vec3(0.0, 20.0, 0.0),
 		vec3(0.0, 1.0, 0.0)
 	);
 
@@ -62,7 +65,7 @@ void TestSplineApp::setupScene()
 	gpuService->setupComposite("shaders/composite_vert.spv", "shaders/composite_frag.spv");
 	gpuService->setupCompute();
 
-	_sceneGlobals.perspective = vulcro::glProjFixYZ * glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 1000.0f);
+	_sceneGlobals.perspective = vulcro::glProjFixYZ * glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 2000.0f);
 	_sceneGlobals.time.x = 0.0;
 	_sceneGlobals.viewPos = vec4(0.0, 0.0, 5.0, 1.0);
 
@@ -90,7 +93,7 @@ struct Link {
 	uint c1;
 };
 
-struct Skeleton {
+struct Skeleton2 {
 	vec4 info;
 	mat4 modelMatrix;
 	Vertex verts[20];
@@ -101,7 +104,7 @@ struct Skeleton {
 void TestSplineApp::addTree()
 {
 
-	Skeleton s2s[1];
+	Skeleton2 s2s[1];
 	auto &sk = s2s[0];
 
 	sk.modelMatrix = translate(mat4(1.0), vec3(0.0, 2.0, 0.0));
@@ -138,7 +141,7 @@ void TestSplineApp::addTree()
 	sk.links[3].c1 = 0;
 
 
-	auto skelCompute = VultureSplineCompute<Skeleton>::make(vctx, 1, 4, s2s);
+	auto skelCompute = VultureSplineCompute<Skeleton2>::make(vctx, 1, 4, s2s);
 
 
 	_skeletonComputeShader = vctx->makeTessShader(
@@ -166,7 +169,7 @@ void TestSplineApp::addTree()
 
 void TestSplineApp::addCreature() {
 
-	Skeleton skel[1];
+	Skeleton2 skel[1];
 	auto &sk = skel[0];
 
 	auto vctx = _window.getContext();
@@ -220,7 +223,7 @@ void TestSplineApp::addCreature() {
 	sk.modelMatrix = mat4(1.0);
 
 
-	auto skelCompute = VultureSplineCompute<Skeleton>::make(vctx, 1, 20, skel);
+	auto skelCompute = VultureSplineCompute<Skeleton2>::make(vctx, 1, 20, skel);
 
 	auto skelRender = MeshRender::make(
 		vctx->makePipeline(_skeletonComputeShader, gpuService->getSceneRenderer(),
@@ -236,32 +239,12 @@ void TestSplineApp::run() {
 
 	bool stillRunning = true;
 
-	while (stillRunning) {
+	_window.run([&] {
 
-		SDL_Event event;
-		while (SDL_PollEvent(&event)) {
+		update();	
+	
+	});
 
-			switch (event.type) {
-
-			case SDL_QUIT:
-				stillRunning = false;
-				break;
-
-
-			default:
-				// Do nothing.
-				break;
-			}
-
-		}
-
-		update();
-
-		const Uint8 *state = SDL_GetKeyboardState(NULL);
-		if (state[SDL_SCANCODE_ESCAPE]) {
-			stillRunning = false;
-		}
-	}
 
 	killServices();
 

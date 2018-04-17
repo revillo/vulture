@@ -1,7 +1,7 @@
 #pragma once
 #include "views/VultureView.h"
 #include "graphics/VultureMeshCompute.h"
-
+#include "models/VultureSkeleton.h"
 
 class TerrainView : public View {
 
@@ -9,53 +9,37 @@ public:
 
 	class TerrainGen : public IComputable, public IMesh {
 	public:
-
-		TerrainGen(VultureGPUService * service, ivec2 textureSize = ivec2(1024, 1024))
-		{
-			auto ctx = service->getContext();
-			_textureSize = textureSize;
-			heightMap = ctx->makeImage(vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled, textureSize, vk::Format::eR32Sfloat);
-			heightMap->allocateDeviceMemory();
-			heightMap->createImageView(vk::ImageAspectFlagBits::eColor);
-			heightMap->createSampler();
-
-
-			setLayout = service->getContext()->makeUniformSetLayout({
-				ULB(1, vk::DescriptorType::eStorageImage)
-				});
-
-			set = service->getContext()->makeUniformSet(setLayout);
-			set->bindStorageImage(0, heightMap);
-
-			_initPipeline = ctx->makeComputePipeline(
-				ctx->makeComputeShader(
-					"shaders/terrain/terrain_init_comp.spv",
-					{
-						setLayout
-					}
-				)
-			);
-
-			_simPipeline = ctx->makeComputePipeline(
-				ctx->makeComputeShader(
-					"shaders/terrain/terrain_simulate_comp.spv",
-					{
-						setLayout
-					}
-				)
-			);
-
-			sampledSetLayout = ctx->makeUniformSetLayout({
-				ULB(1, vk::DescriptorType::eCombinedImageSampler, &heightMap->getSampler())
-			});
-
-			sampledSet = ctx->makeUniformSet(sampledSetLayout);
-
-			sampledSet->bindImage(0, heightMap);
+		struct TerrainDatum {
+			vec4 height;
 		};
 
-		VulkanUniformSetRef getUniformSet() override {
-			return sampledSet;
+
+		struct TerrainData {
+			ivec2 size;
+			TerrainDatum * data;
+
+			TerrainDatum& getDatum(uint32 x, uint32 y) {
+				return data[x + (y * size.x)];
+			}
+		};
+
+		enum ComputeStage {
+			eInit,
+			eSimulate,
+			eTransfer,
+			ePopulateTrees
+		};
+
+		using TreeRig = Skeleton::Rig<20, 20>;
+
+		TerrainGen(VultureGPUService * service, ivec2 textureSize = ivec2(1024, 1024));
+
+		VulkanUniformSetRef getMeshSet() override {
+			return _meshSet;
+		}
+
+		VulkanUniformSetLayoutRef getMeshSetLayout() override {
+			return _meshSetLayout;
 		}
 
 		void draw(vk::CommandBuffer *cmd, uint32 numInstances) {
@@ -64,36 +48,42 @@ public:
 		
 		};
 
+		void setStage(ComputeStage stage) {
+			_stage = stage;
+		}
 
-		void recordCompute(vk::CommandBuffer * cmd) override {
-			
-			if (stage == 0) {
-				_initPipeline->bind(cmd);
-				_initPipeline->bindUniformSets(cmd, { set });
-			}
-			else if (stage == 1) {
-				_simPipeline->bind(cmd);
-				_simPipeline->bindUniformSets(cmd, { set });
-			}
-			else {
-				return;
-			}
+		void recordCompute(vk::CommandBuffer * cmd) override;
 
-			cmd->dispatch(_textureSize.x / 32, _textureSize.y / 32, 1);
+		TerrainData loadData() {
+			return TerrainData {
+				_textureSize,
+				_dataBuffer->loadHeap()
+			};
 		}
 
 		VulkanComputePipelineRef _initPipeline;
 		VulkanComputePipelineRef _simPipeline;
-		VulkanImageRef heightMap;
-		VulkanUniformSetLayoutRef setLayout;
-		VulkanUniformSetRef set;
+		VulkanComputePipelineRef _transferPipeline;
+		VulkanComputePipelineRef _treePipeline;
 
-		uint32 stage = 0;
+		VulkanImageRef _heightMap;
+		//VulkanImageRef featureMap;
+		//VulkanBufferRef _dataBuffer;
+
+		VulkanBufferRef _treeSkeletonBuffer;
+
+		shared_ptr<ssbo<TerrainDatum>> _dataBuffer;
+
+		VulkanUniformSetLayoutRef _computeSetLayout;
+		VulkanUniformSetRef _computeSet;
+
+		ComputeStage _stage = eInit;
 
 		ivec2 _textureSize;
-		VulkanUniformSetLayoutRef sampledSetLayout;
-		VulkanUniformSetRef sampledSet;
+		VulkanUniformSetLayoutRef _meshSetLayout;
+		VulkanUniformSetRef _meshSet;
 
+		uint32 maxTrees = 20000;
 	};
 
 	TerrainView(VultureGPUService * service);
@@ -106,16 +96,17 @@ public:
 		//TODO;
 	};
 
-protected:
-
-	BufferlessMeshRef _mesh;
-
-	MeshRenderRef _meshRender;
-	VultureGPUService * _gpuService;
-
 	shared_ptr<TerrainGen> terrainGen;
 
+protected:
 
+	MeshRenderRef _meshRender;
+
+	MeshRenderRef _waterMeshRender;
+
+	VultureGPUService * _gpuService;
+
+	//shared_ptr<TerrainGen> terrainGen;
 
 };
 
